@@ -1,5 +1,5 @@
 inputfile=	data/data
-giris_sayisi=	1
+giris_sayisi=	2
 gizli_katmandaki_noronlar=	3	2
 katman_fonksiyonlari=	sigmoid	sigmoid	sigmoid
 ogrenme_hizi=	0.5

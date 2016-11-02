@@ -102,6 +102,7 @@ namespace MLP { // multi-layer perceptron
 		float m_alpha; // momentum degeri
 		
 		// datainfo dosyasindan okunacak veriler icin degiskenler
+		
 		string m_outfile;
 		string m_inputfile;	
 		
@@ -117,6 +118,7 @@ namespace MLP { // multi-layer perceptron
 		int m_iterasyon;
 			
 		// data dosyasindan okunacak veriler icin degiskenler
+		
 		int m_sutun_sayisi; // = 3
 		int m_satir_sayisi;
 		
@@ -200,6 +202,15 @@ namespace MLP { // multi-layer perceptron
 					m_data.push_back(okunanSatir);
 					cout << m_data.back() << endl;
 				}
+				
+				m_satir_sayisi = m_data.size(); // data dosyasindaki toplam satir sayisinin alinmasi
+				cout << "data dosyasindaki satir sayisi=\t"<< m_satir_sayisi << endl;
+				
+				m_sutun_sayisi = split(m_data.at(0),';').size(); // data dosyasindaki toplam sutun sayisinin alinmasi
+				cout << "data dosyasindaki sutun sayisi=\t"<< m_sutun_sayisi << endl;
+				
+				m_cikis_sayisi = m_sutun_sayisi - m_giris_sayisi;
+				cout << "buna gore networkte bulunacak cikis sayisi=\t"<< m_cikis_sayisi << endl;
 				
 				// dosyayi kapat				
 				data.close();			
