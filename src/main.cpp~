@@ -12,10 +12,8 @@ namespace MLP { // multi-layer perceptron
 		float m_weight = 0.0f;
 		
 		public:
-		
-			// kurucu ve yikici fonksiyon
-			Connection(float value,float weight);
-			
+			// kurucu fonksiyon
+			Connection(float value,float weight);	
 			// erisim saglayicilar
 			void setValue(float value);
 			void setWeight(float value);
@@ -31,6 +29,10 @@ namespace MLP { // multi-layer perceptron
 		Connections m_inputs;	
 		TransferFunction m_function = nullptr;
 		float m_output = 0.0f;
+		
+		float m_eta;
+		float m_alpha;
+		float m_gradient;
 		
 		public:
 			// kurucu ve yikici fonksiyon
@@ -60,14 +62,20 @@ namespace MLP { // multi-layer perceptron
 	class Perceptron {
 	
 		Layers m_layers;
+		
 		float m_output;
+		float m_error;
+		float m_averageError;
+		float m_smoothingFactor;
+		
 		
 		void feedFoward();
-		void backPropagation();
+		void backPropagation();\
 		
 		public:
 			void addLayer(Layer layer);
-			void run(Input input,int iteration); // perceptronu verilen girislerle calistirir
+			void train(Input input,int iteration); // perceptronu verilen girislerle calistirir
+			void displayNetwork() const;
 			void displayResults() const;
 			
 	};
@@ -75,12 +83,12 @@ namespace MLP { // multi-layer perceptron
 }
 
 float sigmoid(float value){
-	return 1;
+	return 1 ;
 }
 
 int main(){
 	using namespace MLP;
-	using std::vector;
+
 	
 	TransferFunction f_sigmoid = sigmoid;
 
@@ -107,7 +115,9 @@ int main(){
 	net.addLayer(cikis);
 	
 	
-	net.run(girisler,200); // 200 defa verilen girisler ile calistirir
+	net.displayNetwork();
+	
+	net.train(girisler,200); // 200 defa verilen girisler ile calistirir
 	
 	net.displayResults(); // sonuclari gosterir
 	
