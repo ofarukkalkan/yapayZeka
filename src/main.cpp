@@ -52,9 +52,10 @@ namespace MLP { // multi-layer perceptron
 	
 	class Neuron { // yapay noron
 	
-		Connections m_inputs;	
+		Connections m_connections;	
 		TransferFunction m_function = nullptr;
 		float m_output = 0.0f;
+		float m_sum;
 		
 
 		
@@ -66,7 +67,18 @@ namespace MLP { // multi-layer perceptron
 			void transfer(); // toplam degeri transfer fonksiyonundan gecirilir
 			
 			// erisim saglayicilar
-			float getOutput() const;
+			float getOutput() const{
+				return m_output;
+			}
+			float getSum() const{
+				return m_sum;
+			}
+			
+			~Neuron(){ // noronda ki temizlik islemleri
+				for(size_t i=0; i < m_connections.size();i++){
+					delete m_connections.at(i);
+				}
+			}
 	};
 	
 	typedef vector<Neuron*> Neurons;
@@ -76,7 +88,20 @@ namespace MLP { // multi-layer perceptron
 		Neurons m_neurons;
 		
 		public:
-			void addNeuron(TransferFunction function); // noron ekler
+			void addNeuron(TransferFunction function) // noron ekler
+			{
+				m_neurons.push_back(new Neuron(function));
+			}
+			
+			Neuron * getNeuron(size_t index){
+				return m_neurons.at(index);
+			}
+			
+			~Layer(){ // katmandaki temizlik islemleri
+				for(size_t i=0; i < m_neurons.size();i++){
+					delete m_neurons.at(i);
+				}
+			}
 	
 	};
 	
@@ -206,7 +231,7 @@ namespace MLP { // multi-layer perceptron
 				m_satir_sayisi = m_data.size(); // data dosyasindaki toplam satir sayisinin alinmasi
 				cout << "data dosyasindaki satir sayisi=\t"<< m_satir_sayisi << endl;
 				
-				m_sutun_sayisi = split(m_data.at(0),';').size(); // data dosyasindaki toplam sutun sayisinin alinmasi
+				m_sutun_sayisi = split(m_data.at(0),'\t').size(); // data dosyasindaki toplam sutun sayisinin alinmasi
 				cout << "data dosyasindaki sutun sayisi=\t"<< m_sutun_sayisi << endl;
 				
 				m_cikis_sayisi = m_sutun_sayisi - m_giris_sayisi;
