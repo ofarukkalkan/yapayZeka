@@ -1,10 +1,11 @@
 #include <vector>
 #include <string>
-#include <functional>
 #include <fstream>
 #include <sstream>
 #include <iostream>
 #include <exception>
+#include <cmath>
+#include <cstdlib>
 
 // bu fonksyionlar disardan alindi. satirlardaki kelimeleri parse etmek icin
 void split(const std::string &s, char delim, std::vector<std::string> &elems) {
@@ -25,48 +26,93 @@ std::vector<std::string> split(const std::string &s, char delim) {
 
 namespace MLP { // multi-layer perceptron
 	using std::vector;
-	using std::function;
 	using std::string;
 	using std::ifstream;
 	using std::cout;
 	using std::endl;
-	using std::exception;
 	
 	class  Connection { // noronlar arasinda baglantiyi saglar
-	
-		float m_value = 0.0f;
-		float m_weight = 0.0f;
+		
+		// bunlar pointer olarak tutulmustur. cunku agirliklar surekli degisecegi icin degerleri set etmeye gerek kalmayacak
+		float * m_valuePtr = nullptr;
+		float * m_weightPtr = nullptr;
 		
 		public:
 			// kurucu fonksiyon
-			Connection(float value,float weight);	
-			// erisim saglayicilar
-			void setValue(float value);
-			void setWeight(float value);
-			float getValue() const;
-			float getWeight() const;
+			Connection(float  * valuePtr,float * weightPtr){
+				m_valuePtr = valuePtr;
+				m_weightPtr = weightPtr;
+			}
+			// yazdir
+			void print(int index){
+				cout << "Baglanti ->"<< index<< " deger = "<< (*m_valuePtr) << "\tagirlik = " << (*m_weightPtr) << endl;
+			}
+			
+			// private degiskenlere erisim saglayicilar
+			float * getValuePtr(){
+				return m_valuePtr;
+			}
+			float * getWeightPtr(){
+				return m_weightPtr;
+			}
+			void setValuePtr(float * ptr){
+				m_valuePtr = ptr;
+			}
+			void setWeightPtr(float * ptr){
+				m_weightPtr = ptr;
+			}
 	};
 	
 	typedef vector<Connection*> Connections;
-	typedef function<float(float)> TransferFunction;
 	
 	class Neuron { // yapay noron
 	
 		Connections m_connections;	
-		TransferFunction m_function = nullptr;
+		string m_function;
 		float m_output = 0.0f;
 		float m_sum;
 		
-
-		
 		public:
 			// kurucu ve yikici fonksiyon
-			Neuron(TransferFunction function);
+			Neuron(string function){
+				m_function = function;
+			}
 			
-			void sum(); // norondaki toplam degeri hesaplanir
-			void transfer(); // toplam degeri transfer fonksiyonundan gecirilir
+			void sum() // norondaki toplam degeri hesaplanir
+			{
+				for(size_t i =0; i < m_connections.size();i++){
+				//	m_sum+= m_connections.at(i) * 
+				}
+			}
+			void transfer() // toplam degeri transfer fonksiyonundan gecirilir
+			{
+
+			}
 			
+			//verilen referans degiskenler ile baglanti olusturur ve ilk sefere mahsus agirligi rastgele atar
+			void addConnection(float * valuePtr, float * weigthPtr){
+				float agirlik = static_cast<float>(1.0 * rand() / (RAND_MAX)); // ilk agirlik rastgele ataniyor
+				(*weigthPtr) = agirlik;
+				m_connections.push_back(new Connection(valuePtr, weigthPtr)); // ilk deger 0 olarak veriliyor
+			}
+			
+			//verilen index sayisina gore baglanti nesnesini donderir
+			Connection * getConnection(int index){
+				return m_connections.at(index);
+			}
+			
+			// yazdir
+			void print(int index){
+				cout << "Noron -> " << index <<" fonksiyon = "<< m_function << "\tcikis = " << m_output << "\ttoplam = " << m_sum << endl;
+				for(int i=0; i < m_connections.size(); i++){
+					cout << "\t\t\t";
+					m_connections.at(i)->print(i);
+				}
+			}
 			// erisim saglayicilar
+			float * getOutputPtr(){
+				return &m_output;
+			}
 			float getOutput() const{
 				return m_output;
 			}
@@ -88,12 +134,21 @@ namespace MLP { // multi-layer perceptron
 		Neurons m_neurons;
 		
 		public:
-			void addNeuron(TransferFunction function) // noron ekler
+			void addNeuron(string function) // noron ekler
 			{
 				m_neurons.push_back(new Neuron(function));
 			}
 			
-			Neuron * getNeuron(size_t index){
+			// yazdir
+			void print(int index){
+				cout << "Katman -> " << index << endl;
+				for(int i=0; i < m_neurons.size(); i++){
+					cout << "\t\t";
+					m_neurons.at(i)->print(i);
+				}
+			}
+			
+			Neuron * getNeuron(int index){
 				return m_neurons.at(index);
 			}
 			
@@ -147,7 +202,6 @@ namespace MLP { // multi-layer perceptron
 		int m_sutun_sayisi; // = 3
 		int m_satir_sayisi;
 		
-
 		void feedFoward(){
 			// noronlarin hesaplamalarini yap
 			
@@ -186,6 +240,7 @@ namespace MLP { // multi-layer perceptron
 					cout << "\t" <<  m_gizli_katman_noronlari.at(i-1);
 				}
 				cout << endl;
+				m_gizli_katman_sayisi = kelimeler.size() - 1;
 				// 4. alinan satir katmanlarin transfer fonksiyonlari
 				getline(dosya, okunanSatir);
 				vector<string> kelimeler2 = split(okunanSatir,'\t');
@@ -237,17 +292,68 @@ namespace MLP { // multi-layer perceptron
 				m_cikis_sayisi = m_sutun_sayisi - m_giris_sayisi;
 				cout << "buna gore networkte bulunacak cikis sayisi=\t"<< m_cikis_sayisi << endl;
 				
+			
 				// dosyayi kapat				
 				data.close();			
-		}
+			}
+				// dosyadan okunan bilgiler ile networku kuran fonksiyon
+			void kur(){
+		
+				// katmanlari olustur
+			
+				for(int i=0; i < m_gizli_katman_sayisi; i++){ // gizli katman sayisi kadar gizli katman eklenir
+					Layer * newLayer = new Layer();
+					m_layers.push_back(newLayer);
+				}
+			
+				Layer * cikisKatmani = new Layer(); // cikis katmani
+				m_layers.push_back(cikisKatmani);
+				// gizli katmandaki noronlari ekle
+			
+				for(int i=0; i < m_gizli_katman_sayisi; i++){
+			
+					// katmanlardaki noron sayilari kadar o katmana noronu, v tr. fonksiyonu ile ekle
+					for(int j=0; j < m_gizli_katman_noronlari.at(i); j++){
+						m_layers.at(i)->addNeuron(m_fonksiyonlar.at(i));
+								
+						// norona ait kac tane baglanti varsa onlar eklenir
+						if(i == 0){ // eger 1.gizli katmana ekleme yapiliyorsa, baglantilar girislere gore eklenir
+							for(int k=0; k < m_giris_sayisi; k++ ){
+								m_layers.at(i)->getNeuron(j)->addConnection(new float(0.0f),new float(0.0f));
+							}
+
+						} else { // diger katmanlarin baglantilari onceki katmandaki noronlarin cikislarina gore eklenir
+
+							for(int k=0; k < m_gizli_katman_noronlari.at(i-1); k++ ){
+								m_layers.at(i)->getNeuron(j)->addConnection( m_layers.at(i-1)->getNeuron(k)->getOutputPtr(),new float(0.0f) );
+							}
+						
+						}
+					}
+				}
+				
+				// cikis katmanindaki noronlari ekle
+				for(int i=0; i < m_cikis_sayisi; i++ ){// cikis katmanindaki noron sayisi, data dosyasindaki cikis sayisiyla aynidir
+					m_layers.back()->addNeuron(m_fonksiyonlar.back());
+					
+					for(int j=0; j < m_gizli_katman_noronlari.back(); j++){ // en sonda ki gizli katmanda yer alan noron sayisi
+						m_layers.back()->getNeuron(i)->addConnection( m_layers.at(m_layers.size()-2)->getNeuron(j)->getOutputPtr(),new float(0.0f) );
+					}
+				}
+			}
+			void print(){
+				cout << "Network -> " << endl;
+				for(int i=0; i < m_layers.size(); i++){
+					cout << "\t";
+					m_layers.at(i)->print(i);
+				}
+			}
 			
 	};
 
 };
 
-float sigmoid(float value){
-	return 1 ;
-}
+
 
 int main(){
 	using namespace MLP;
@@ -256,6 +362,8 @@ int main(){
 	Perceptron  net;
 
 	net.oku("data/datainfo");
+	net.kur();
+	net.print();
 	
 	return 0;
 }

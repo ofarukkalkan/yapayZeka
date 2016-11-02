@@ -1,0 +1,1 @@
+gdb ./out/main.o
