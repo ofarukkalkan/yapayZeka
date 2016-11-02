@@ -86,16 +86,22 @@ namespace MLP { // multi-layer perceptron
 	class Perceptron {
 	
 		Layers m_layers;
-		vector<string> m_data; // okunan giris ve cikis degeri
 		
+		// dosyadan okunan giris cikis verileri ile ilgili degiskenler
+		
+		vector<string> m_data; // okunan giris ve cikis degeri
+		vector<float> m_inputs; // giris degerleri
 		vector<float> m_outputs; // cikis degerleri
+		
+		// hesaplama isleri ile ilgili degiskenler
+		
 		float m_error; // cikisin olmasi gereken sonuca gore hatasi
 		float m_averageError;
 		
 		float m_eta; // ogrenme hizi
 		float m_alpha; // momentum degeri
 		
-		// datainfo dosyasindan okunacaklar
+		// datainfo dosyasindan okunacak veriler icin degiskenler
 		string m_outfile;
 		string m_inputfile;	
 		
@@ -110,21 +116,18 @@ namespace MLP { // multi-layer perceptron
 		float m_testveri_orani;
 		int m_iterasyon;
 			
-		// data dosyasindan okunacaklar
+		// data dosyasindan okunacak veriler icin degiskenler
 		int m_sutun_sayisi; // = 3
 		int m_satir_sayisi;
 		
-		vector<string> m_okunan_satirlar;
 
-		
-		
 		void feedFoward(){
 			// noronlarin hesaplamalarini yap
 			
 			// baslangic agirliklarini rastgele ata
 		}
 		void backPropagation(){
-		
+			// egitim algoritmasini calistir
 		}
 		
 		public:
@@ -217,11 +220,6 @@ int main(){
 	Perceptron  net;
 
 	net.oku("data/datainfo");
-	//data.txt
 	
-	/*
-	oku("data_info.txt");
-	run();
-	*/
 	return 0;
 }
